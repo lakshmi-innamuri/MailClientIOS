@@ -17,5 +17,6 @@
 
 - (BOOL) authenticateId: (NSString*) uid password: (NSString*) pwd;
 - (MCOIMAPFetchMessagesOperation*) retrieveHeaders: (User*) user;
+- (MCOIMAPFetchMessagesOperation*) retrieveUnsubscribeHeaderOp: (User*) user;
 
 @end

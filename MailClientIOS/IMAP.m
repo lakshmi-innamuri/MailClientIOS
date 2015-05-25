@@ -35,6 +35,28 @@
 
 - (MCOIMAPFetchMessagesOperation*) retrieveHeaders: (User*) user{
     
+    //return fetch op ; table view controller starts the operation
+    
+    MCOIMAPSession *session = [[MCOIMAPSession alloc] init];
+    session.hostname = @"imap.gmail.com";
+    session.port = 993;
+    session.username = user.getUid;
+    session.password = user.getPwd;
+    session.connectionType = MCOConnectionTypeTLS;
+    MCOIndexSet *uidSet = [MCOIndexSet indexSetWithRange:MCORangeMake(1,UINT64_MAX)];
+    MCOIMAPMessagesRequestKind requestKind = MCOIMAPMessagesRequestKindFullHeaders | MCOIMAPMessagesRequestKindInternalDate;
+    MCOIMAPFetchMessagesOperation *fetchOp =
+    [session fetchMessagesByUIDOperationWithFolder:@"INBOX"
+                                       requestKind:requestKind
+                                              uids:uidSet];
+    
+    return fetchOp;
+}
+
+- (MCOIMAPFetchMessagesOperation*) retrieveUnsubscribeHeaderOp:(User *)user{
+
+    //return search based fetch op ; controller starts operation
+    
     MCOIMAPSession *session = [[MCOIMAPSession alloc] init];
     session.hostname = @"imap.gmail.com";
     session.port = 993;
@@ -42,16 +64,19 @@
     session.password = user.getPwd;
     session.connectionType = MCOConnectionTypeTLS;
     
-    MCOIndexSet *uidSet = [MCOIndexSet indexSetWithRange:MCORangeMake(1,UINT64_MAX)];
-    MCOIMAPMessagesRequestKind requestKind = MCOIMAPMessagesRequestKindFullHeaders;
+    __block MCOIMAPFetchMessagesOperation *fetch;
     
-    MCOIMAPFetchMessagesOperation *fetchOp =
-    [session fetchMessagesByUIDOperationWithFolder:@"INBOX"
-                                       requestKind:requestKind
-                                              uids:uidSet];
-    [fetchOp start:^(NSError *err, NSArray *msgs, MCOIndexSet *vanished) {
+    //NSLog(@"imap id%@, pwd %@", user.getUid, user.getPwd);
+    MCOIMAPMessagesRequestKind requestKind = MCOIMAPMessagesRequestKindFullHeaders;
+    MCOIMAPSearchExpression * expr = [MCOIMAPSearchExpression searchGmailRaw:@"unsubscribe"];
+    MCOIMAPSearchOperation* searchOperation = [session searchExpressionOperationWithFolder:@"INBOX" expression: expr];
+    [searchOperation start:^(NSError *err, MCOIndexSet *searchResult) {
+        fetch =
+        [session fetchMessagesByUIDOperationWithFolder:@"INBOX"
+                                           requestKind:requestKind
+                                                  uids:searchResult];
     }];
-
-    return fetchOp;
+    
+    return fetch;
 }
 @end
