@@ -7,6 +7,8 @@
 //
 
 #import <UIKit/UIKit.h>
+#import "IMAP.h"
+#import "User.h"
 
 @interface ViewController : UIViewController
 

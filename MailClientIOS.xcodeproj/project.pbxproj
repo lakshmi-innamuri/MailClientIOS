@@ -9,6 +9,8 @@
 /* Begin PBXBuildFile section */
 		0B42213C1B12D23700FE8EC4 /* libMailCore-ios.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 0B92AB511B12D1AF00EE44CF /* libMailCore-ios.a */; };
 		0B42213E1B12D23E00FE8EC4 /* CFNetwork.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0B42213D1B12D23E00FE8EC4 /* CFNetwork.framework */; };
+		0B4586C31B12DE530045618B /* User.m in Sources */ = {isa = PBXBuildFile; fileRef = 0B4586C21B12DE530045618B /* User.m */; };
+		0B4586CD1B12E6460045618B /* IMAP.m in Sources */ = {isa = PBXBuildFile; fileRef = 0B4586CC1B12E6460045618B /* IMAP.m */; };
 		0B92AB021B12D0D100EE44CF /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 0B92AB011B12D0D100EE44CF /* main.m */; };
 		0B92AB051B12D0D100EE44CF /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 0B92AB041B12D0D100EE44CF /* AppDelegate.m */; };
 		0B92AB081B12D0D100EE44CF /* ViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 0B92AB071B12D0D100EE44CF /* ViewController.m */; };
@@ -93,6 +95,10 @@
 
 /* Begin PBXFileReference section */
 		0B42213D1B12D23E00FE8EC4 /* CFNetwork.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CFNetwork.framework; path = System/Library/Frameworks/CFNetwork.framework; sourceTree = SDKROOT; };
+		0B4586C11B12DE530045618B /* User.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = User.h; sourceTree = "<group>"; };
+		0B4586C21B12DE530045618B /* User.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = User.m; sourceTree = "<group>"; };
+		0B4586CB1B12E6460045618B /* IMAP.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IMAP.h; sourceTree = "<group>"; };
+		0B4586CC1B12E6460045618B /* IMAP.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = IMAP.m; sourceTree = "<group>"; };
 		0B92AAFC1B12D0D100EE44CF /* MailClientIOS.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = MailClientIOS.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		0B92AB001B12D0D100EE44CF /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		0B92AB011B12D0D100EE44CF /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
@@ -156,6 +162,10 @@
 				0B92AB041B12D0D100EE44CF /* AppDelegate.m */,
 				0B92AB061B12D0D100EE44CF /* ViewController.h */,
 				0B92AB071B12D0D100EE44CF /* ViewController.m */,
+				0B4586C11B12DE530045618B /* User.h */,
+				0B4586C21B12DE530045618B /* User.m */,
+				0B4586CB1B12E6460045618B /* IMAP.h */,
+				0B4586CC1B12E6460045618B /* IMAP.m */,
 				0B92AB091B12D0D100EE44CF /* Main.storyboard */,
 				0B92AB0C1B12D0D200EE44CF /* Images.xcassets */,
 				0B92AB0E1B12D0D200EE44CF /* LaunchScreen.xib */,
@@ -371,6 +381,8 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				0B4586CD1B12E6460045618B /* IMAP.m in Sources */,
+				0B4586C31B12DE530045618B /* User.m in Sources */,
 				0B92AB081B12D0D100EE44CF /* ViewController.m in Sources */,
 				0B92AB051B12D0D100EE44CF /* AppDelegate.m in Sources */,
 				0B92AB021B12D0D100EE44CF /* main.m in Sources */,
