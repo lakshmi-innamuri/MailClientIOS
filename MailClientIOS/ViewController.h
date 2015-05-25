@@ -10,6 +10,9 @@
 
 @interface ViewController : UIViewController
 
+@property (weak, nonatomic) IBOutlet UITextField *id_user;
+@property (weak, nonatomic) IBOutlet UITextField *pwd_user;
+- (IBAction)retrieve;
 
 @end
 
