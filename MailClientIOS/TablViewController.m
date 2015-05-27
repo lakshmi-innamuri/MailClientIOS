@@ -18,9 +18,12 @@
 @synthesize sender_id = _sender_id;
 @synthesize tableView;
 NSMutableArray *tableData;
+NSMutableArray *tableDate;;
 - (void)viewDidLoad {
     [super viewDidLoad];
+    self.tableView.userInteractionEnabled = YES;
     tableData = [[NSMutableArray alloc] init];
+    tableDate = [[NSMutableArray alloc] init];
     //NSLog(@"cred%@, %@",[self.user getUid], [self.user getPwd]);
     [self retrieveUnsubscribe];
     
@@ -52,6 +55,7 @@ NSMutableArray *tableData;
                                                                       timeStyle:NSDateFormatterFullStyle];
                 NSString *header = [m.header.subject stringByAppendingString:dateString];
                 [tableData addObject:header];
+                [tableDate addObject:m.header.sender.displayName];
                 NSLog(@"%@",header);
             }
             [tableView reloadData];
@@ -118,10 +122,11 @@ NSMutableArray *tableData;
     UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:CellIdentifier];
     if (cell == nil) {
         cell = [[UITableViewCell alloc]
-                initWithStyle:UITableViewCellStyleDefault
+                initWithStyle:UITableViewCellStyleSubtitle
                 reuseIdentifier:CellIdentifier];
     }
     cell.textLabel.text = [tableData objectAtIndex: [indexPath row]];
+ 
     return cell;
 }
 
