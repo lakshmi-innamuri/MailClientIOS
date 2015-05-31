@@ -7,23 +7,28 @@
 //
 
 #import "TablViewController.h"
+#import "MailItemTableViewCell.h"
 
 @interface TablViewController ()
 
 @end
 
 @implementation TablViewController
+static NSString* cellIdentifier = @"CellIdentifier";
 @synthesize user = _user;
 @synthesize sender = _sender;
 @synthesize sender_id = _sender_id;
 @synthesize tableView;
 NSMutableArray *tableData;
-NSMutableArray *tableDate;;
+NSMutableArray *tableDate;
+NSMutableArray *tableSubject;
 - (void)viewDidLoad {
     [super viewDidLoad];
     self.tableView.userInteractionEnabled = YES;
+    [tableView registerClass:[MailItemTableViewCell class] forCellReuseIdentifier:cellIdentifier];
     tableData = [[NSMutableArray alloc] init];
     tableDate = [[NSMutableArray alloc] init];
+    tableSubject = [[NSMutableArray alloc] init];
     //NSLog(@"cred%@, %@",[self.user getUid], [self.user getPwd]);
     [self retrieveUnsubscribe];
     
@@ -54,8 +59,11 @@ NSMutableArray *tableDate;;
                                                                       dateStyle:NSDateFormatterShortStyle
                                                                       timeStyle:NSDateFormatterFullStyle];
                 NSString *header = [m.header.subject stringByAppendingString:dateString];
-                [tableData addObject:header];
-                [tableDate addObject:m.header.sender.displayName];
+                //[tableData addObject:header];
+                [tableSubject addObject:m.header.subject];
+                [tableDate addObject:dateString];
+                [tableData addObject:m.header.sender.displayName];
+                
                 NSLog(@"%@",header);
             }
             [tableView reloadData];
@@ -96,14 +104,17 @@ NSMutableArray *tableDate;;
             for (int i = 0; i < [msgs count]; i++) {
                 MCOIMAPMessage *m = msgs[i];
                 if (m.header.subject != nil) {
-                    NSString *dateString = [NSDateFormatter localizedStringFromDate:m.header.date
-                                                                          dateStyle:NSDateFormatterShortStyle
-                                                                          timeStyle:NSDateFormatterFullStyle];
-                    NSString *header = [m.header.subject stringByAppendingString:dateString];
-                    NSLog(@"%@",header);
-                    [tableData addObject:header];
-                    [tableView reloadData];
+
+                    NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
+                    [dateFormatter setDateFormat:@"MM-dd-YY HH:mm"];
+                    NSString *dateString = [dateFormatter stringFromDate:m.header.date];
+                    //NSLog(@"%@",dateString);
+                    
+                    [tableSubject addObject:m.header.subject];
+                    [tableDate addObject:dateString];
+                    //[tableData addObject:m.header.sender.displayName];
                 }
+                  [tableView reloadData];
             }
         }];
     }];
@@ -112,22 +123,22 @@ NSMutableArray *tableDate;;
 }
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
-    return [tableData count];
+    return [tableSubject count];
 }
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
     
-    static NSString *CellIdentifier = @"Cell";
-    
-    UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:CellIdentifier];
-    if (cell == nil) {
-        cell = [[UITableViewCell alloc]
-                initWithStyle:UITableViewCellStyleSubtitle
-                reuseIdentifier:CellIdentifier];
-    }
-    cell.textLabel.text = [tableData objectAtIndex: [indexPath row]];
- 
-    return cell;
+    MailItemTableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:cellIdentifier];
+//    if (cell == nil) {
+//        cell = [[UITableViewCell alloc]
+//                initWithStyle:UITableViewCellStyleSubtitle
+//                reuseIdentifier:CellIdentifier];
+//    }
+    [cell setSentDate:[tableDate objectAtIndex:[indexPath row]]];
+    [cell setSubject:[tableSubject objectAtIndex: [indexPath row]]];
+
+
+   return cell;
 }
 
 
