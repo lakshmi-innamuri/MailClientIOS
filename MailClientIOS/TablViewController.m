@@ -134,6 +134,14 @@ NSMutableArray *tableSubject;
 //                initWithStyle:UITableViewCellStyleSubtitle
 //                reuseIdentifier:CellIdentifier];
 //    }
+    
+    cell.accessoryView = [[UISwitch alloc] initWithFrame:CGRectZero];
+    
+    UISwitch * mySwitch = [[UISwitch alloc] initWithFrame:CGRectZero];
+    cell.accessoryView = mySwitch;
+    [mySwitch addTarget:self action:@selector(updateSwitchAtIndexPath:) forControlEvents:UIControlEventValueChanged];
+    mySwitch.tag = [indexPath row];
+    
     [cell setSentDate:[tableDate objectAtIndex:[indexPath row]]];
     [cell setSubject:[tableSubject objectAtIndex: [indexPath row]]];
 
@@ -151,6 +159,11 @@ NSMutableArray *tableSubject;
     // Pass the selected object to the new view controller.
 }
 */
+
+- (void)updateSwitchAtIndexPath:(UISwitch*)sender {
+    
+    NSLog(@"updated %ld",sender.tag);
+}
 
 - (void)didReceiveMemoryWarning {
     [super didReceiveMemoryWarning];
