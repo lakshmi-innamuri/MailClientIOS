@@ -8,6 +8,7 @@
 
 #import "TablViewController.h"
 #import "MailItemTableViewCell.h"
+#import "Mail.h"
 
 @interface TablViewController ()
 
@@ -22,108 +23,26 @@ static NSString* cellIdentifier = @"CellIdentifier";
 NSMutableArray *tableData;
 NSMutableArray *tableDate;
 NSMutableArray *tableSubject;
+NSMutableArray *allMails;
+NSMutableSet *mailboxSet;
+
 - (void)viewDidLoad {
     [super viewDidLoad];
     self.tableView.userInteractionEnabled = YES;
+    
     [tableView registerClass:[MailItemTableViewCell class] forCellReuseIdentifier:cellIdentifier];
+    
     tableData = [[NSMutableArray alloc] init];
     tableDate = [[NSMutableArray alloc] init];
     tableSubject = [[NSMutableArray alloc] init];
-    //NSLog(@"cred%@, %@",[self.user getUid], [self.user getPwd]);
-    [self retrieveUnsubscribe];
-    
-//    switch (self.sender_id) {
-//        case 0:
-//            [self retrieveAll];
-//            break;
-//        case 1:
-//            [self retrieveUnsubscribe];
-//            break;
-//        default:
-//            break;
-//    }
-    
-   
-    
-}
+    allMails = [[NSMutableArray alloc] init];
+    mailboxSet = [[NSMutableSet alloc] init];
 
--(void) retrieveAll{
-    IMAP *  imap_channel = [[IMAP alloc] init];
-    MCOIMAPFetchMessagesOperation * fOp = [imap_channel retrieveUnsubscribeHeaderOp: self.user];
-    [fOp start:^(NSError *err, NSArray *msgs, MCOIndexSet *vanished) {
-        NSLog(@"count %lu",[msgs count]);
-        for (int i = 0; i < [msgs count]; i++) {
-            MCOIMAPMessage *m = msgs[i];
-            if (m.header.subject != nil) {
-                NSString *dateString = [NSDateFormatter localizedStringFromDate:m.header.date
-                                                                      dateStyle:NSDateFormatterShortStyle
-                                                                      timeStyle:NSDateFormatterFullStyle];
-                NSString *header = [m.header.subject stringByAppendingString:dateString];
-                //[tableData addObject:header];
-                [tableSubject addObject:m.header.subject];
-                [tableDate addObject:dateString];
-                [tableData addObject:m.header.sender.displayName];
-                
-                NSLog(@"%@",header);
-            }
-            [tableView reloadData];
-            
-            //  MCOIMAPFetchContentOperation *operation = [session fetchMessageByUIDOperationWithFolder:@"INBOX"uid:m.uid];
-            //            [operation start:^(NSError *error, NSData *data) {
-            //                MCOMessageParser *messageParser = [[MCOMessageParser alloc] initWithData:data];
-            //                NSString *msgHTMLBody = [messageParser ];
-            //                NSLog(@"%@", m.header.subject);
-            //            }];
-        }
-    }];
-}
-
-- (void) retrieveUnsubscribe{
-    
-    MCOIMAPSession *session = [[MCOIMAPSession alloc] init];
-    session.hostname = @"imap.gmail.com";
-    session.port = 993;
-    session.username = [self.user getUid];
-    session.password = [self.user getPwd];
-    session.connectionType = MCOConnectionTypeTLS;
-    
-    __block MCOIMAPFetchMessagesOperation *fetch;
-    
-    //NSLog(@"imap id%@, pwd %@", user.getUid, user.getPwd);
-    MCOIMAPMessagesRequestKind requestKind = MCOIMAPMessagesRequestKindFullHeaders;
-    MCOIMAPSearchExpression * expr = [MCOIMAPSearchExpression searchGmailRaw:@"unsubscribe"];
-    MCOIMAPSearchOperation* searchOperation = [session searchExpressionOperationWithFolder:@"INBOX" expression: expr];
-    [searchOperation start:^(NSError *err, MCOIndexSet *searchResult) {
-        fetch =
-        [session fetchMessagesByUIDOperationWithFolder:@"INBOX"
-                                           requestKind:requestKind
-                                                  uids:searchResult];
-        [fetch start:^(NSError *err, NSArray *msgs, MCOIndexSet *vanished) {
-            
-            NSLog(@"msg count %lu",[msgs count]);
-            for (int i = 0; i < [msgs count]; i++) {
-                MCOIMAPMessage *m = msgs[i];
-                if (m.header.subject != nil) {
-
-                    NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
-                    [dateFormatter setDateFormat:@"MM-dd-YY HH:mm"];
-                    NSString *dateString = [dateFormatter stringFromDate:m.header.date];
-                    //NSLog(@"%@",dateString);
-                    
-                    [tableSubject addObject:m.header.subject];
-                    [tableDate addObject:dateString];
-                    //[tableData addObject:m.header.sender.displayName];
-                }
-                  [tableView reloadData];
-            }
-        }];
-    }];
-    
-
+   // [self retrieveUnsubscribe];
 }
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
-    return [tableSubject count];
+    return [allMails count];
 }
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
@@ -142,9 +61,13 @@ NSMutableArray *tableSubject;
     [mySwitch addTarget:self action:@selector(updateSwitchAtIndexPath:) forControlEvents:UIControlEventValueChanged];
     mySwitch.tag = [indexPath row];
     
-    [cell setSentDate:[tableDate objectAtIndex:[indexPath row]]];
-    [cell setSubject:[tableSubject objectAtIndex: [indexPath row]]];
+//    [cell setSentDate:[tableDate objectAtIndex:[indexPath row]]];
+//    [cell setSubject:[tableSubject objectAtIndex: [indexPath row]]];
+//    
 
+    Mail *mailForCell = [allMails objectAtIndex:[indexPath row]];
+    [cell setSentDate:mailForCell.date ];
+    [cell setSubject:mailForCell.subject ];
 
    return cell;
 }
@@ -171,4 +94,138 @@ NSMutableArray *tableSubject;
 }
 
 
+- (IBAction)unsubscribeEmails:(id)sender {
+    MCOIMAPSession *session = [[MCOIMAPSession alloc] init];
+    session.hostname = @"imap.gmail.com";
+    session.port = 993;
+    session.username = [self.user getUid];
+    session.password = [self.user getPwd];
+    session.connectionType = MCOConnectionTypeTLS;
+    
+    //[MCOIMAPSearchExpression searchHeader:@"Message-ID" value:@"themessage@id"]
+    __block MCOIMAPFetchMessagesOperation *fetch;
+    
+    //NSLog(@"imap id%@, pwd %@", user.getUid, user.getPwd);
+    MCOIMAPMessagesRequestKind requestKind = MCOIMAPMessagesRequestKindFullHeaders;
+    MCOIMAPSearchExpression * expr = [MCOIMAPSearchExpression searchGmailRaw:@"unsubscribe"];
+    MCOIMAPSearchOperation* searchOperation = [session searchExpressionOperationWithFolder:@"INBOX" expression: expr];
+    [tableSubject removeAllObjects];
+    [tableDate removeAllObjects];
+    [searchOperation start:^(NSError *err, MCOIndexSet *searchResult) {
+        fetch =
+        [session fetchMessagesByUIDOperationWithFolder:@"INBOX"
+                                           requestKind:requestKind
+                                                  uids:searchResult];
+        [fetch start:^(NSError *err, NSArray *msgs, MCOIndexSet *vanished) {
+            
+            NSLog(@"msg count %lu",[msgs count]);
+            for (int i = 0; i < [msgs count]; i++) {
+                MCOIMAPMessage *m = msgs[i];
+                NSString* mailbox = m.header.from.mailbox;
+                if (![mailboxSet containsObject:mailbox]) {
+                    NSLog(@"%@",mailbox);
+                    [mailboxSet addObject:mailbox];
+                    NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
+                    [dateFormatter setDateFormat:@"MM-dd-YY HH:mm"];
+                    NSString *dateString = [dateFormatter stringFromDate:m.header.date];
+                    Mail *email = [[Mail alloc]
+                                   initWithSubject:(NSString*)m.header.subject
+                                   Date:(NSString*)dateString
+                                   msgID :(uint64_t) [m gmailMessageID]];
+                    email.mailbox = mailbox;
+                    
+            MCOIMAPFetchContentOperation *operation = [session fetchMessageByUIDOperationWithFolder:@"INBOX" uid:m.uid];
+                    
+                    [operation start:^(NSError *error, NSData *data) {
+                        
+                        MCOMessageParser *messageParser = [[MCOMessageParser alloc] initWithData:data];
+                        
+                        NSString *msgHTMLBody = [messageParser htmlBodyRendering];
+                        NSLog(@"%@",msgHTMLBody);
+                    }];
+                    
+                    
+                    
+                    [allMails addObject:email];
+                }
+                [tableView reloadData];
+            }
+        }];
+    }];
+}
+- (IBAction)unsubscribeAll:(id)sender {
+    
+    MCOIMAPSession *session = [[MCOIMAPSession alloc] init];
+    session.hostname = @"imap.gmail.com";
+    session.port = 993;
+    session.username = [self.user getUid];
+    session.password = [self.user getPwd];
+    session.connectionType = MCOConnectionTypeTLS;
+    
+    
+    //[MCOIMAPSearchExpression searchHeader:@"Message-ID" value:@"themessage@id"]
+    __block MCOIMAPFetchMessagesOperation *fetch;
+ NSLog(@"%ld",[mailboxSet count]);
+    Mail* m =  [[Mail alloc] init];
+    
+    m = [mailboxSet anyObject];
+    
+    uint64_t mid = (m.message_id);
+    NSLog(@"after %ld",[mailboxSet count]);
+    MCOIMAPMessagesRequestKind requestKind = MCOIMAPMessagesRequestKindFullHeaders;
+
+    MCOIMAPSearchExpression * expr = [MCOIMAPSearchExpression searchGmailMessageID:mid];
+    MCOIMAPSearchOperation* searchOperation = [session searchExpressionOperationWithFolder:@"INBOX" expression: expr];
+    [tableSubject removeAllObjects];
+    [tableDate removeAllObjects];
+    //pull message id or uid ,
+    //extract body
+    //parse to get unsubscribe url
+    //invoke the url
+    //verify for 200
+    /*
+    NSURLRequest * urlRequest = [NSURLRequest requestWithURL:[NSURL URLWithString:@"http://google.com"]];
+    NSHTTPURLResponse * response = nil;
+    NSError * error = nil;
+    NSData * data = [NSURLConnection sendSynchronousRequest:urlRequest
+                                          returningResponse:&response
+                                                      error:&error];
+    
+    if (error == nil)
+    {
+        NSLog(@"in if %ld",[response statusCode]);
+    }else{
+        NSLog(@"in else");
+    }
+     */
+    [searchOperation start:^(NSError *err, MCOIndexSet *searchResult) {
+        fetch =
+        [session fetchMessagesByUIDOperationWithFolder:@"INBOX"
+                                           requestKind:requestKind
+                                                  uids:searchResult];
+        [fetch start:^(NSError *err, NSArray *msgs, MCOIndexSet *vanished) {
+           
+            NSLog(@"msg count %lu",[msgs count]);
+            for (int i = 0; i < [msgs count]; i++) {
+                MCOIMAPMessage *m = msgs[i];
+                NSString* mailbox = m.header.from.mailbox;
+                if (![mailboxSet containsObject:mailbox]) {
+                    NSLog(@"%@",mailbox);
+                    [mailboxSet addObject:mailbox];
+                    NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
+                    [dateFormatter setDateFormat:@"MM-dd-YY HH:mm"];
+                    NSString *dateString = [dateFormatter stringFromDate:m.header.date];
+                    Mail *email = [[Mail alloc]
+                                   initWithSubject:(NSString*)m.header.subject
+                                   Date:(NSString*)dateString
+                                   msgID :(uint64_t) [m gmailMessageID]];
+                    email.mailbox = mailbox;
+                  
+                    [allMails addObject:email];
+                }
+                [tableView reloadData];
+            }
+        }];
+    }];
+}
 @end

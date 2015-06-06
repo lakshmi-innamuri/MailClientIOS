@@ -12,6 +12,7 @@
 		0B42213E1B12D23E00FE8EC4 /* CFNetwork.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0B42213D1B12D23E00FE8EC4 /* CFNetwork.framework */; };
 		0B4586C31B12DE530045618B /* User.m in Sources */ = {isa = PBXBuildFile; fileRef = 0B4586C21B12DE530045618B /* User.m */; };
 		0B4586CD1B12E6460045618B /* IMAP.m in Sources */ = {isa = PBXBuildFile; fileRef = 0B4586CC1B12E6460045618B /* IMAP.m */; };
+		0B601A1A1B1FCB9100BE8D92 /* Mail.m in Sources */ = {isa = PBXBuildFile; fileRef = 0B601A191B1FCB9100BE8D92 /* Mail.m */; };
 		0B6AEA7D1B1935F900DCD894 /* MailItemTableViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 0B6AEA7C1B1935F900DCD894 /* MailItemTableViewCell.m */; };
 		0B92AB021B12D0D100EE44CF /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 0B92AB011B12D0D100EE44CF /* main.m */; };
 		0B92AB051B12D0D100EE44CF /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 0B92AB041B12D0D100EE44CF /* AppDelegate.m */; };
@@ -103,6 +104,8 @@
 		0B4586C21B12DE530045618B /* User.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = User.m; sourceTree = "<group>"; };
 		0B4586CB1B12E6460045618B /* IMAP.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IMAP.h; sourceTree = "<group>"; };
 		0B4586CC1B12E6460045618B /* IMAP.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = IMAP.m; sourceTree = "<group>"; };
+		0B601A181B1FCB9100BE8D92 /* Mail.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Mail.h; sourceTree = "<group>"; };
+		0B601A191B1FCB9100BE8D92 /* Mail.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Mail.m; sourceTree = "<group>"; };
 		0B6AEA7B1B1935F900DCD894 /* MailItemTableViewCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MailItemTableViewCell.h; sourceTree = "<group>"; };
 		0B6AEA7C1B1935F900DCD894 /* MailItemTableViewCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MailItemTableViewCell.m; sourceTree = "<group>"; };
 		0B92AAFC1B12D0D100EE44CF /* MailClientIOS.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = MailClientIOS.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -175,6 +178,8 @@
 				0B92AB091B12D0D100EE44CF /* Main.storyboard */,
 				0B019CE81B13BB61002911AF /* TablViewController.h */,
 				0B019CE91B13BB61002911AF /* TablViewController.m */,
+				0B601A181B1FCB9100BE8D92 /* Mail.h */,
+				0B601A191B1FCB9100BE8D92 /* Mail.m */,
 				0B6AEA7B1B1935F900DCD894 /* MailItemTableViewCell.h */,
 				0B6AEA7C1B1935F900DCD894 /* MailItemTableViewCell.m */,
 				0B92AB0C1B12D0D200EE44CF /* Images.xcassets */,
@@ -395,6 +400,7 @@
 				0B019CEA1B13BB61002911AF /* TablViewController.m in Sources */,
 				0B4586C31B12DE530045618B /* User.m in Sources */,
 				0B92AB081B12D0D100EE44CF /* ViewController.m in Sources */,
+				0B601A1A1B1FCB9100BE8D92 /* Mail.m in Sources */,
 				0B92AB051B12D0D100EE44CF /* AppDelegate.m in Sources */,
 				0B6AEA7D1B1935F900DCD894 /* MailItemTableViewCell.m in Sources */,
 				0B92AB021B12D0D100EE44CF /* main.m in Sources */,

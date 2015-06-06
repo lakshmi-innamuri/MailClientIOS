@@ -15,13 +15,15 @@
 @interface TablViewController : UIViewController <UITableViewDelegate, UITableViewDataSource>{
     
 }
+- (IBAction)unsubscribeEmails:(id)sender;
+//- (void) retrieveAll;
+//- (void) retrieveUnsubscribe;
+- (IBAction)unsubscribeAll:(id)sender;
 
 @property (weak, nonatomic) IBOutlet UITableView *tableView;
-
 @property(nonatomic) User* user;
 @property(nonatomic) NSString* sender;
 @property(nonatomic) int sender_id;
 
-- (void) retrieveAll;
-- (void) retrieveUnsubscribe;
+
 @end
