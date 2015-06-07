@@ -9,6 +9,7 @@
 #import "TablViewController.h"
 #import "MailItemTableViewCell.h"
 #import "Mail.h"
+#import "TFHpple.h"
 
 @interface TablViewController ()
 
@@ -135,17 +136,42 @@ NSMutableSet *mailboxSet;
                     email.mailbox = mailbox;
                     
             MCOIMAPFetchContentOperation *operation = [session fetchMessageByUIDOperationWithFolder:@"INBOX" uid:m.uid];
-                    
+                   
+                    if(i > -1){
                     [operation start:^(NSError *error, NSData *data) {
                         
                         MCOMessageParser *messageParser = [[MCOMessageParser alloc] initWithData:data];
                         
-                        NSString *msgHTMLBody = [messageParser htmlBodyRendering];
-                        NSLog(@"%@",msgHTMLBody);
-                    }];
-                    
-                    
-                    
+                        TFHpple *tutorialsParser = [TFHpple hppleWithHTMLData:data];
+                        NSString *tutorialsXpathQueryString = @"//a";
+                        NSArray *tutorialsNodes = [tutorialsParser searchWithXPathQuery:tutorialsXpathQueryString];
+                        
+                        for (TFHppleElement *element in tutorialsNodes) {
+
+                            NSString *linkText = [[[element firstChild] content] lowercaseString];
+                            if([linkText isEqualToString:@"unsubscribe"]){
+                            NSLog(@" first child %@",[[element firstChild] content]);
+                            NSString * url = [element objectForKey:@"href"];
+                            NSLog(@"%@",url);
+                                
+                                NSURLRequest * urlRequest = [NSURLRequest requestWithURL:[NSURL URLWithString:url]];
+                                NSHTTPURLResponse * response = nil;
+                                NSError * error = nil;
+                                NSData * data = [NSURLConnection sendSynchronousRequest:urlRequest
+                                                                      returningResponse:&response
+                                                                                  error:&error];
+                                
+                                if (error == nil)
+                                {
+                                    NSLog(@"in if %ld",[response statusCode]);
+                                }else{
+                                    NSLog(@"in else %ld",[response statusCode]);
+                                }
+                                
+                                
+                            }
+                        }
+                    }];}
                     [allMails addObject:email];
                 }
                 [tableView reloadData];
@@ -165,7 +191,7 @@ NSMutableSet *mailboxSet;
     
     //[MCOIMAPSearchExpression searchHeader:@"Message-ID" value:@"themessage@id"]
     __block MCOIMAPFetchMessagesOperation *fetch;
- NSLog(@"%ld",[mailboxSet count]);
+    NSLog(@"%ld",[mailboxSet count]);
     Mail* m =  [[Mail alloc] init];
     
     m = [mailboxSet anyObject];
