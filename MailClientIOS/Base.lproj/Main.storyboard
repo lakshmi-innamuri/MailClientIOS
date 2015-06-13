@@ -2,7 +2,8 @@
 <document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="7706" systemVersion="14E26a" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" initialViewController="vXZ-lx-hvc">
     <dependencies>
         <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="7703"/>
-        <capability name="Constraints to layout margins" minToolsVersion="6.0"/>
+        <capability name="Alignment constraints to the first baseline" minToolsVersion="6.0"/>
+        <capability name="Alignment constraints with different attributes" minToolsVersion="5.1"/>
     </dependencies>
     <scenes>
         <!--View Controller-->
@@ -72,26 +73,17 @@
                         <rect key="frame" x="0.0" y="0.0" width="600" height="600"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
-                            <tableView clipsSubviews="YES" multipleTouchEnabled="YES" userInteractionEnabled="NO" contentMode="redraw" misplaced="YES" alwaysBounceVertical="YES" alwaysBounceHorizontal="YES" pagingEnabled="YES" dataMode="prototypes" style="plain" rowHeight="44" sectionHeaderHeight="22" sectionFooterHeight="22" translatesAutoresizingMaskIntoConstraints="NO" id="q84-3H-Bf3">
-                                <rect key="frame" x="0.0" y="68" width="606" height="556"/>
+                            <tableView clipsSubviews="YES" multipleTouchEnabled="YES" userInteractionEnabled="NO" contentMode="redraw" alwaysBounceVertical="YES" alwaysBounceHorizontal="YES" pagingEnabled="YES" dataMode="prototypes" style="plain" rowHeight="44" sectionHeaderHeight="22" sectionFooterHeight="22" translatesAutoresizingMaskIntoConstraints="NO" id="q84-3H-Bf3">
+                                <rect key="frame" x="6" y="50" width="588" height="550"/>
                                 <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
-                                <color key="separatorColor" cocoaTouchSystemColor="viewFlipsideBackgroundColor"/>
+                                <color key="separatorColor" red="0.12156862745098039" green="0.12941176470588237" blue="0.14117647058823529" alpha="1" colorSpace="calibratedRGB"/>
                                 <connections>
                                     <outlet property="dataSource" destination="LHg-DI-Ydx" id="veo-hL-dCZ"/>
                                     <outlet property="delegate" destination="LHg-DI-Ydx" id="7jP-5K-Oxc"/>
                                 </connections>
                             </tableView>
-                            <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="2My-me-aVu">
-                                <rect key="frame" x="210" y="7" width="204" height="30"/>
-                                <state key="normal" title="unsubscribe emails">
-                                    <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
-                                </state>
-                                <connections>
-                                    <action selector="unsubscribeEmails:" destination="LHg-DI-Ydx" eventType="touchUpInside" id="zIW-Kj-6BW"/>
-                                </connections>
-                            </button>
-                            <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="ZlU-EV-HQD">
-                                <rect key="frame" x="69" y="7" width="118" height="30"/>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="ZlU-EV-HQD">
+                                <rect key="frame" x="20" y="20" width="118" height="30"/>
                                 <state key="normal" title="Unsubscribe ALL">
                                     <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
                                 </state>
@@ -99,13 +91,31 @@
                                     <action selector="unsubscribeAll:" destination="LHg-DI-Ydx" eventType="touchUpInside" id="Uwv-HU-V9f"/>
                                 </connections>
                             </button>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="2My-me-aVu">
+                                <rect key="frame" x="405" y="20" width="175" height="30"/>
+                                <constraints>
+                                    <constraint firstAttribute="width" constant="175" id="Igb-c7-DfB"/>
+                                </constraints>
+                                <state key="normal" title="Unsubscribe emails">
+                                    <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
+                                </state>
+                                <connections>
+                                    <action selector="unsubscribeEmails:" destination="LHg-DI-Ydx" eventType="touchUpInside" id="zIW-Kj-6BW"/>
+                                </connections>
+                            </button>
                         </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                         <constraints>
-                            <constraint firstAttribute="trailing" secondItem="q84-3H-Bf3" secondAttribute="trailing" id="4ht-yG-4MG"/>
-                            <constraint firstItem="q84-3H-Bf3" firstAttribute="bottom" secondItem="zk6-cx-vFd" secondAttribute="top" id="FkP-ya-AiB"/>
-                            <constraint firstItem="q84-3H-Bf3" firstAttribute="leading" secondItem="k2p-ZI-wi5" secondAttribute="leadingMargin" constant="-22" id="m9p-74-eCY"/>
-                            <constraint firstItem="q84-3H-Bf3" firstAttribute="top" secondItem="k2p-ZI-wi5" secondAttribute="topMargin" constant="-14" id="vPP-7m-NjV"/>
+                            <constraint firstItem="q84-3H-Bf3" firstAttribute="leading" secondItem="k2p-ZI-wi5" secondAttribute="leading" constant="6" id="0cM-67-HKO"/>
+                            <constraint firstItem="q84-3H-Bf3" firstAttribute="top" secondItem="ZlU-EV-HQD" secondAttribute="bottom" id="7Sz-Ku-P72"/>
+                            <constraint firstAttribute="trailing" secondItem="2My-me-aVu" secondAttribute="trailing" constant="20" id="EY0-KD-Xjk"/>
+                            <constraint firstItem="2My-me-aVu" firstAttribute="baseline" secondItem="ZlU-EV-HQD" secondAttribute="firstBaseline" id="FV4-FF-zog"/>
+                            <constraint firstAttribute="trailing" secondItem="q84-3H-Bf3" secondAttribute="trailing" constant="6" id="KGR-px-2Lx"/>
+                            <constraint firstItem="ZlU-EV-HQD" firstAttribute="top" secondItem="k2p-ZI-wi5" secondAttribute="top" constant="20" id="TvS-M6-RAW"/>
+                            <constraint firstItem="zk6-cx-vFd" firstAttribute="top" secondItem="q84-3H-Bf3" secondAttribute="bottom" id="XhM-w8-fYs"/>
+                            <constraint firstItem="2My-me-aVu" firstAttribute="firstBaseline" secondItem="ZlU-EV-HQD" secondAttribute="baseline" id="ZUf-qy-yGN"/>
+                            <constraint firstItem="ZlU-EV-HQD" firstAttribute="leading" secondItem="k2p-ZI-wi5" secondAttribute="leading" constant="20" id="w3F-pE-zQ7"/>
+                            <constraint firstItem="q84-3H-Bf3" firstAttribute="top" secondItem="2My-me-aVu" secondAttribute="bottom" id="y2B-iX-hLY"/>
                         </constraints>
                     </view>
                     <connections>

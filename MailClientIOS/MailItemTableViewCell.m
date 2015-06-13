@@ -28,6 +28,11 @@
 //        senderLabel.text = _senderValue;
 //        [self.contentView addSubview:senderLabel];
         
+        //TODO: cell relative positioning
+        //use autolayout through code
+
+        
+        
         CGRect labelRectange = CGRectMake(10,5,100,15);
         _senderValue = [[UILabel alloc] initWithFrame:labelRectange];
         [self.contentView addSubview:_senderValue];

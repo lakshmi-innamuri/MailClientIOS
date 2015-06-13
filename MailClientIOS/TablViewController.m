@@ -28,6 +28,7 @@ NSMutableArray *allMails;
 NSMutableArray *allCheckedMails;
 NSMutableSet *mailboxSet;
 
+
 - (void)viewDidLoad {
     [super viewDidLoad];
     self.tableView.userInteractionEnabled = YES;
@@ -41,7 +42,7 @@ NSMutableSet *mailboxSet;
     allCheckedMails = [[NSMutableArray alloc] init];
     mailboxSet = [[NSMutableSet alloc] init];
 
-    [self retrieveAll];
+    [self retrieveUnsubscribeEmails];
 }
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
@@ -58,6 +59,8 @@ NSMutableSet *mailboxSet;
 //    }
     
     cell.accessoryView = [[UISwitch alloc] initWithFrame:CGRectZero];
+    
+    //TODO: change switch UI
     
     UISwitch * mySwitch = [[UISwitch alloc] initWithFrame:CGRectZero];
     cell.accessoryView = mySwitch;
@@ -88,7 +91,8 @@ NSMutableSet *mailboxSet;
 
 - (void)updateSwitchAtIndexPath:(UISwitch*)sender {
     
-    NSLog(@"updated %ld",sender.tag);
+    //TODO: check if its selected or destelected
+    NSLog(@"updated %ld",(long)sender.tag);
     Mail * thisMail = [allMails objectAtIndex:sender.tag];
     thisMail.checked = true;
     [allCheckedMails addObject: thisMail];
@@ -102,11 +106,24 @@ NSMutableSet *mailboxSet;
 
 - (IBAction)unsubscribeEmails:(id)sender {
 
-    for(int i=0; i< allCheckedMails.count ; i++){
+    [self unsubscribe];
+
+}
+
+
+- (IBAction)unsubscribeAll:(id)sender {
+    
+    [allCheckedMails removeAllObjects];
+    allCheckedMails = [allMails mutableCopy];
+    [self unsubscribe];
+    [allCheckedMails removeAllObjects];
+
+}
+
+-(void) unsubscribe{
+    for (Mail *email in allCheckedMails) {
         
-        Mail *thisMail = allMails[i];
-        NSString* url = thisMail.unsubscribe_url;
-        NSURLRequest * urlRequest = [NSURLRequest requestWithURL:[NSURL URLWithString:url]];
+        NSURLRequest * urlRequest = [NSURLRequest requestWithURL:[NSURL URLWithString:email.unsubscribe_url]];
         NSHTTPURLResponse * response = nil;
         NSError * error = nil;
         NSData * data = [NSURLConnection sendSynchronousRequest:urlRequest
@@ -115,21 +132,18 @@ NSMutableSet *mailboxSet;
         
         if (error == nil)
         {
-            NSLog(@"unsubscribed %@   %ld",url,[response statusCode]);
+            NSLog(@"in if %ld",(long)[response statusCode]);
             if ([response statusCode] == 200) {
-                thisMail.unsubscribed = true;
+                email.unsubscribed = true;
             }
         }else{
-            NSLog(@"in else %ld",[response statusCode]);
+            NSLog(@"in else %ld",(long)[response statusCode]);
         }
-        
-                }
-                [tableView reloadData];
-
+    }
 }
 
-
-- (IBAction)unsubscribeAll:(id)sender {
+- (void) retrieveUnsubscribeEmails{
+    // TODO: move common code to IAMP.m
     
     MCOIMAPSession *session = [[MCOIMAPSession alloc] init];
     session.hostname = @"imap.gmail.com";
@@ -138,26 +152,50 @@ NSMutableSet *mailboxSet;
     session.password = [self.user getPwd];
     session.connectionType = MCOConnectionTypeTLS;
     
+    
     //[MCOIMAPSearchExpression searchHeader:@"Message-ID" value:@"themessage@id"]
     __block MCOIMAPFetchMessagesOperation *fetch;
+    Mail* m =  [[Mail alloc] init];
     
-    //NSLog(@"imap id%@, pwd %@", user.getUid, user.getPwd);
+    m = [mailboxSet anyObject];
+    // FIXME: message ID
+    //uint64_t mid = (m.message_id);
+    NSLog(@"after %ld",(unsigned long)[mailboxSet count]);
     MCOIMAPMessagesRequestKind requestKind = MCOIMAPMessagesRequestKindFullHeaders;
+    
     MCOIMAPSearchExpression * expr = [MCOIMAPSearchExpression searchGmailRaw:@"unsubscribe"];
     MCOIMAPSearchOperation* searchOperation = [session searchExpressionOperationWithFolder:@"INBOX" expression: expr];
     [tableSubject removeAllObjects];
     [tableDate removeAllObjects];
+    //pull message id or uid ,
+    //extract body
+    //parse to get unsubscribe url
+    //invoke the url
+    //verify for 200
+    
+    // FIXME: fetchMessages deprecated
+    // TODO: retrieve in descending order of date
+    // TODO: pull emails from all folders
+    
+    
     [searchOperation start:^(NSError *err, MCOIndexSet *searchResult) {
+        
+        
         fetch =
         [session fetchMessagesByUIDOperationWithFolder:@"INBOX"
                                            requestKind:requestKind
                                                   uids:searchResult];
         [fetch start:^(NSError *err, NSArray *msgs, MCOIndexSet *vanished) {
             
-            NSLog(@"msg count %lu",[msgs count]);
+            NSLog(@"msg count %lu",(unsigned long)[msgs count]);
             for (int i = 0; i < [msgs count]; i++) {
                 MCOIMAPMessage *m = msgs[i];
                 NSString* mailbox = m.header.from.mailbox;
+                //TODO: verify for unique unsubscribe url
+                //emails from different mailbox may have same unsubscribe url
+                // picasa is an example
+                // <picasaweb-noreply@google.com>
+                //
                 if (![mailboxSet containsObject:mailbox]) {
                     NSLog(@"%@",mailbox);
                     [mailboxSet addObject:mailbox];
@@ -185,96 +223,14 @@ NSMutableSet *mailboxSet;
                                 
                                 NSString *linkText = [[[element firstChild] content] lowercaseString];
                                 if([linkText isEqualToString:@"unsubscribe"]){
-                                    NSLog(@" first child %@",[[element firstChild] content]);
+                                  //  NSLog(@" first child %@",[[element firstChild] content]);
                                     NSString * url = [element objectForKey:@"href"];
                                     NSLog(@"%@",url);
                                     email.unsubscribe_url = url;
-                                    
-                                    
-                                    NSURLRequest * urlRequest = [NSURLRequest requestWithURL:[NSURL URLWithString:url]];
-                                    NSHTTPURLResponse * response = nil;
-                                    NSError * error = nil;
-                                    NSData * data = [NSURLConnection sendSynchronousRequest:urlRequest
-                                                                          returningResponse:&response
-                                                                                      error:&error];
-                                    
-                                    if (error == nil)
-                                    {
-                                        NSLog(@"in if %ld",[response statusCode]);
-                                        if ([response statusCode] == 200) {
-                                            email.unsubscribed = true;
-                                        }
-                                    }else{
-                                        NSLog(@"in else %ld",[response statusCode]);
-                                    }
                                 }
                             }
-                        }];}
-                    [allMails addObject:email];
-                }
-                [tableView reloadData];
-            }
-        }];
-    }];
-}
-
-
-- (void) retrieveAll{
-    
-    
-    
-    MCOIMAPSession *session = [[MCOIMAPSession alloc] init];
-    session.hostname = @"imap.gmail.com";
-    session.port = 993;
-    session.username = [self.user getUid];
-    session.password = [self.user getPwd];
-    session.connectionType = MCOConnectionTypeTLS;
-    
-    
-    //[MCOIMAPSearchExpression searchHeader:@"Message-ID" value:@"themessage@id"]
-    __block MCOIMAPFetchMessagesOperation *fetch;
-    NSLog(@"%ld",[mailboxSet count]);
-    Mail* m =  [[Mail alloc] init];
-    
-    m = [mailboxSet anyObject];
-    
-    uint64_t mid = (m.message_id);
-    NSLog(@"after %ld",[mailboxSet count]);
-    MCOIMAPMessagesRequestKind requestKind = MCOIMAPMessagesRequestKindFullHeaders;
-    
-    MCOIMAPSearchExpression * expr = [MCOIMAPSearchExpression searchGmailRaw:@"unsubscribe"];
-    MCOIMAPSearchOperation* searchOperation = [session searchExpressionOperationWithFolder:@"INBOX" expression: expr];
-    [tableSubject removeAllObjects];
-    [tableDate removeAllObjects];
-    //pull message id or uid ,
-    //extract body
-    //parse to get unsubscribe url
-    //invoke the url
-    //verify for 200
-    
-    [searchOperation start:^(NSError *err, MCOIndexSet *searchResult) {
-        fetch =
-        [session fetchMessagesByUIDOperationWithFolder:@"INBOX"
-                                           requestKind:requestKind
-                                                  uids:searchResult];
-        [fetch start:^(NSError *err, NSArray *msgs, MCOIndexSet *vanished) {
-            
-            NSLog(@"msg count %lu",[msgs count]);
-            for (int i = 0; i < [msgs count]; i++) {
-                MCOIMAPMessage *m = msgs[i];
-                NSString* mailbox = m.header.from.mailbox;
-                if (![mailboxSet containsObject:mailbox]) {
-                    NSLog(@"%@",mailbox);
-                    [mailboxSet addObject:mailbox];
-                    NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
-                    [dateFormatter setDateFormat:@"MM-dd-YY HH:mm"];
-                    NSString *dateString = [dateFormatter stringFromDate:m.header.date];
-                    Mail *email = [[Mail alloc]
-                                   initWithSubject:(NSString*)m.header.subject
-                                   Date:(NSString*)dateString
-                                   msgID :(uint64_t) [m gmailMessageID]];
-                    email.mailbox = mailbox;
-                    
+                        }];
+                    }
                     [allMails addObject:email];
                 }
                 [tableView reloadData];
