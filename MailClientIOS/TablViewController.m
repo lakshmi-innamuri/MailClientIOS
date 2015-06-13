@@ -25,6 +25,7 @@ NSMutableArray *tableData;
 NSMutableArray *tableDate;
 NSMutableArray *tableSubject;
 NSMutableArray *allMails;
+NSMutableArray *allCheckedMails;
 NSMutableSet *mailboxSet;
 
 - (void)viewDidLoad {
@@ -37,9 +38,10 @@ NSMutableSet *mailboxSet;
     tableDate = [[NSMutableArray alloc] init];
     tableSubject = [[NSMutableArray alloc] init];
     allMails = [[NSMutableArray alloc] init];
+    allCheckedMails = [[NSMutableArray alloc] init];
     mailboxSet = [[NSMutableSet alloc] init];
 
-   // [self retrieveUnsubscribe];
+    [self retrieveAll];
 }
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
@@ -87,6 +89,9 @@ NSMutableSet *mailboxSet;
 - (void)updateSwitchAtIndexPath:(UISwitch*)sender {
     
     NSLog(@"updated %ld",sender.tag);
+    Mail * thisMail = [allMails objectAtIndex:sender.tag];
+    thisMail.checked = true;
+    [allCheckedMails addObject: thisMail];
 }
 
 - (void)didReceiveMemoryWarning {
@@ -96,6 +101,36 @@ NSMutableSet *mailboxSet;
 
 
 - (IBAction)unsubscribeEmails:(id)sender {
+
+    for(int i=0; i< allCheckedMails.count ; i++){
+        
+        Mail *thisMail = allMails[i];
+        NSString* url = thisMail.unsubscribe_url;
+        NSURLRequest * urlRequest = [NSURLRequest requestWithURL:[NSURL URLWithString:url]];
+        NSHTTPURLResponse * response = nil;
+        NSError * error = nil;
+        NSData * data = [NSURLConnection sendSynchronousRequest:urlRequest
+                                              returningResponse:&response
+                                                          error:&error];
+        
+        if (error == nil)
+        {
+            NSLog(@"unsubscribed %@   %ld",url,[response statusCode]);
+            if ([response statusCode] == 200) {
+                thisMail.unsubscribed = true;
+            }
+        }else{
+            NSLog(@"in else %ld",[response statusCode]);
+        }
+        
+                }
+                [tableView reloadData];
+
+}
+
+
+- (IBAction)unsubscribeAll:(id)sender {
+    
     MCOIMAPSession *session = [[MCOIMAPSession alloc] init];
     session.hostname = @"imap.gmail.com";
     session.port = 993;
@@ -135,43 +170,46 @@ NSMutableSet *mailboxSet;
                                    msgID :(uint64_t) [m gmailMessageID]];
                     email.mailbox = mailbox;
                     
-            MCOIMAPFetchContentOperation *operation = [session fetchMessageByUIDOperationWithFolder:@"INBOX" uid:m.uid];
-                   
+                    MCOIMAPFetchContentOperation *operation = [session fetchMessageByUIDOperationWithFolder:@"INBOX" uid:m.uid];
+                    
                     if(i > -1){
-                    [operation start:^(NSError *error, NSData *data) {
-                        
-                        MCOMessageParser *messageParser = [[MCOMessageParser alloc] initWithData:data];
-                        
-                        TFHpple *tutorialsParser = [TFHpple hppleWithHTMLData:data];
-                        NSString *tutorialsXpathQueryString = @"//a";
-                        NSArray *tutorialsNodes = [tutorialsParser searchWithXPathQuery:tutorialsXpathQueryString];
-                        
-                        for (TFHppleElement *element in tutorialsNodes) {
-
-                            NSString *linkText = [[[element firstChild] content] lowercaseString];
-                            if([linkText isEqualToString:@"unsubscribe"]){
-                            NSLog(@" first child %@",[[element firstChild] content]);
-                            NSString * url = [element objectForKey:@"href"];
-                            NSLog(@"%@",url);
+                        [operation start:^(NSError *error, NSData *data) {
+                            
+                            MCOMessageParser *messageParser = [[MCOMessageParser alloc] initWithData:data];
+                            
+                            TFHpple *tutorialsParser = [TFHpple hppleWithHTMLData:data];
+                            NSString *tutorialsXpathQueryString = @"//a";
+                            NSArray *tutorialsNodes = [tutorialsParser searchWithXPathQuery:tutorialsXpathQueryString];
+                            
+                            for (TFHppleElement *element in tutorialsNodes) {
                                 
-                                NSURLRequest * urlRequest = [NSURLRequest requestWithURL:[NSURL URLWithString:url]];
-                                NSHTTPURLResponse * response = nil;
-                                NSError * error = nil;
-                                NSData * data = [NSURLConnection sendSynchronousRequest:urlRequest
-                                                                      returningResponse:&response
-                                                                                  error:&error];
-                                
-                                if (error == nil)
-                                {
-                                    NSLog(@"in if %ld",[response statusCode]);
-                                }else{
-                                    NSLog(@"in else %ld",[response statusCode]);
+                                NSString *linkText = [[[element firstChild] content] lowercaseString];
+                                if([linkText isEqualToString:@"unsubscribe"]){
+                                    NSLog(@" first child %@",[[element firstChild] content]);
+                                    NSString * url = [element objectForKey:@"href"];
+                                    NSLog(@"%@",url);
+                                    email.unsubscribe_url = url;
+                                    
+                                    
+                                    NSURLRequest * urlRequest = [NSURLRequest requestWithURL:[NSURL URLWithString:url]];
+                                    NSHTTPURLResponse * response = nil;
+                                    NSError * error = nil;
+                                    NSData * data = [NSURLConnection sendSynchronousRequest:urlRequest
+                                                                          returningResponse:&response
+                                                                                      error:&error];
+                                    
+                                    if (error == nil)
+                                    {
+                                        NSLog(@"in if %ld",[response statusCode]);
+                                        if ([response statusCode] == 200) {
+                                            email.unsubscribed = true;
+                                        }
+                                    }else{
+                                        NSLog(@"in else %ld",[response statusCode]);
+                                    }
                                 }
-                                
-                                
                             }
-                        }
-                    }];}
+                        }];}
                     [allMails addObject:email];
                 }
                 [tableView reloadData];
@@ -179,7 +217,11 @@ NSMutableSet *mailboxSet;
         }];
     }];
 }
-- (IBAction)unsubscribeAll:(id)sender {
+
+
+- (void) retrieveAll{
+    
+    
     
     MCOIMAPSession *session = [[MCOIMAPSession alloc] init];
     session.hostname = @"imap.gmail.com";
@@ -199,8 +241,8 @@ NSMutableSet *mailboxSet;
     uint64_t mid = (m.message_id);
     NSLog(@"after %ld",[mailboxSet count]);
     MCOIMAPMessagesRequestKind requestKind = MCOIMAPMessagesRequestKindFullHeaders;
-
-    MCOIMAPSearchExpression * expr = [MCOIMAPSearchExpression searchGmailMessageID:mid];
+    
+    MCOIMAPSearchExpression * expr = [MCOIMAPSearchExpression searchGmailRaw:@"unsubscribe"];
     MCOIMAPSearchOperation* searchOperation = [session searchExpressionOperationWithFolder:@"INBOX" expression: expr];
     [tableSubject removeAllObjects];
     [tableDate removeAllObjects];
@@ -209,28 +251,14 @@ NSMutableSet *mailboxSet;
     //parse to get unsubscribe url
     //invoke the url
     //verify for 200
-    /*
-    NSURLRequest * urlRequest = [NSURLRequest requestWithURL:[NSURL URLWithString:@"http://google.com"]];
-    NSHTTPURLResponse * response = nil;
-    NSError * error = nil;
-    NSData * data = [NSURLConnection sendSynchronousRequest:urlRequest
-                                          returningResponse:&response
-                                                      error:&error];
     
-    if (error == nil)
-    {
-        NSLog(@"in if %ld",[response statusCode]);
-    }else{
-        NSLog(@"in else");
-    }
-     */
     [searchOperation start:^(NSError *err, MCOIndexSet *searchResult) {
         fetch =
         [session fetchMessagesByUIDOperationWithFolder:@"INBOX"
                                            requestKind:requestKind
                                                   uids:searchResult];
         [fetch start:^(NSError *err, NSArray *msgs, MCOIndexSet *vanished) {
-           
+            
             NSLog(@"msg count %lu",[msgs count]);
             for (int i = 0; i < [msgs count]; i++) {
                 MCOIMAPMessage *m = msgs[i];
@@ -246,12 +274,16 @@ NSMutableSet *mailboxSet;
                                    Date:(NSString*)dateString
                                    msgID :(uint64_t) [m gmailMessageID]];
                     email.mailbox = mailbox;
-                  
+                    
                     [allMails addObject:email];
                 }
                 [tableView reloadData];
             }
         }];
     }];
+
+    
 }
+
+
 @end

@@ -13,8 +13,8 @@
     self.subject = subject;
     self.date = date;
     self.message_id = (msg_id);
-    
+    self.checked = false;
+    self.unsubscribed = false;
     return self;
 }
-
 @end

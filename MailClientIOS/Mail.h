@@ -14,6 +14,9 @@
 @property(nonatomic) NSString* mailbox;
 @property(nonatomic) NSString* date;
 @property(nonatomic) uint64_t message_id;
+@property(nonatomic) NSString* unsubscribe_url;
+@property(nonatomic) Boolean checked;
+@property(nonatomic) Boolean unsubscribed;
 - (Mail*)initWithSubject:(NSString*)subject Date:(NSString*)date msgID :(uint64_t) msg_id;
 @end
 

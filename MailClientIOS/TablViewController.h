@@ -16,7 +16,7 @@
     
 }
 - (IBAction)unsubscribeEmails:(id)sender;
-//- (void) retrieveAll;
+- (void) retrieveAll;
 //- (void) retrieveUnsubscribe;
 - (IBAction)unsubscribeAll:(id)sender;
 
