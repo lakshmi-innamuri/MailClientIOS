@@ -62,6 +62,7 @@
     session.port = 993;
     session.username = user.getUid;
     session.password = user.getPwd;
+    //TODO: implement OATUH
     session.connectionType = MCOConnectionTypeTLS;
     
     __block MCOIMAPFetchMessagesOperation *fetch;

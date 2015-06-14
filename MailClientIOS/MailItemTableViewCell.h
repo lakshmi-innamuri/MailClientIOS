@@ -13,6 +13,7 @@
 @property (copy,nonatomic) NSString* senderName;
 @property (copy,nonatomic) NSString* subject;
 @property (copy,nonatomic) NSString* sentDate;
+@property (copy,nonatomic) UIColor* color;
 
 
 -(void) setSender:(NSString*) s;

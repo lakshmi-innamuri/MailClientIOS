@@ -60,20 +60,23 @@ NSMutableSet *mailboxSet;
     
     cell.accessoryView = [[UISwitch alloc] initWithFrame:CGRectZero];
     
+    //TODO: sort mail list display
+    //so unsubscribe=true displays on top
     //TODO: change switch UI
     
     UISwitch * mySwitch = [[UISwitch alloc] initWithFrame:CGRectZero];
     cell.accessoryView = mySwitch;
     [mySwitch addTarget:self action:@selector(updateSwitchAtIndexPath:) forControlEvents:UIControlEventValueChanged];
     mySwitch.tag = [indexPath row];
-    
-//    [cell setSentDate:[tableDate objectAtIndex:[indexPath row]]];
-//    [cell setSubject:[tableSubject objectAtIndex: [indexPath row]]];
-//    
 
+    
     Mail *mailForCell = [allMails objectAtIndex:[indexPath row]];
-    [cell setSentDate:mailForCell.date ];
-    [cell setSubject:mailForCell.subject ];
+    if(mailForCell.unsubscribed == true)
+        cell.color = [UIColor colorWithRed:0 green:1 blue:0 alpha:1];
+    else if(mailForCell.unsubscribed == false)
+        cell.color = [UIColor colorWithRed:1 green:0 blue:0 alpha:1];
+    [cell setSubject:mailForCell.mailbox ];
+    
 
    return cell;
 }
@@ -91,11 +94,15 @@ NSMutableSet *mailboxSet;
 
 - (void)updateSwitchAtIndexPath:(UISwitch*)sender {
     
+   
     //TODO: check if its selected or destelected
     NSLog(@"updated %ld",(long)sender.tag);
+    if([sender isOn]){
+        NSLog(@"on");
     Mail * thisMail = [allMails objectAtIndex:sender.tag];
     thisMail.checked = true;
     [allCheckedMails addObject: thisMail];
+    }
 }
 
 - (void)didReceiveMemoryWarning {
@@ -112,6 +119,9 @@ NSMutableSet *mailboxSet;
 
 
 - (IBAction)unsubscribeAll:(id)sender {
+    
+    //TODO: add select all
+    //update all ui switch to seelcted
     
     [allCheckedMails removeAllObjects];
     allCheckedMails = [allMails mutableCopy];
@@ -132,13 +142,16 @@ NSMutableSet *mailboxSet;
         
         if (error == nil)
         {
-            NSLog(@"in if %ld",(long)[response statusCode]);
+            NSLog(@"status %ld",(long)[response statusCode]);
             if ([response statusCode] == 200) {
                 email.unsubscribed = true;
+                NSLog(@"positive \n%@ , \n%@",email.mailbox,email.unsubscribe_url);
             }
         }else{
-            NSLog(@"in else %ld",(long)[response statusCode]);
+            email.unsubscribed = false;
+            NSLog(@"negative \n%@ , \n%@",email.mailbox,email.unsubscribe_url);
         }
+        [tableView reloadData];
     }
 }
 
@@ -160,7 +173,7 @@ NSMutableSet *mailboxSet;
     m = [mailboxSet anyObject];
     // FIXME: message ID
     //uint64_t mid = (m.message_id);
-    NSLog(@"after %ld",(unsigned long)[mailboxSet count]);
+    //NSLog(@"after %ld",(unsigned long)[mailboxSet count]);
     MCOIMAPMessagesRequestKind requestKind = MCOIMAPMessagesRequestKindFullHeaders;
     
     MCOIMAPSearchExpression * expr = [MCOIMAPSearchExpression searchGmailRaw:@"unsubscribe"];
@@ -187,7 +200,7 @@ NSMutableSet *mailboxSet;
                                                   uids:searchResult];
         [fetch start:^(NSError *err, NSArray *msgs, MCOIndexSet *vanished) {
             
-            NSLog(@"msg count %lu",(unsigned long)[msgs count]);
+            //NSLog(@"msg count %lu",(unsigned long)[msgs count]);
             for (int i = 0; i < [msgs count]; i++) {
                 MCOIMAPMessage *m = msgs[i];
                 NSString* mailbox = m.header.from.mailbox;
@@ -197,7 +210,7 @@ NSMutableSet *mailboxSet;
                 // <picasaweb-noreply@google.com>
                 //
                 if (![mailboxSet containsObject:mailbox]) {
-                    NSLog(@"%@",mailbox);
+                    //NSLog(@"%@",mailbox);
                     [mailboxSet addObject:mailbox];
                     NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
                     [dateFormatter setDateFormat:@"MM-dd-YY HH:mm"];
@@ -225,15 +238,16 @@ NSMutableSet *mailboxSet;
                                 if([linkText isEqualToString:@"unsubscribe"]){
                                   //  NSLog(@" first child %@",[[element firstChild] content]);
                                     NSString * url = [element objectForKey:@"href"];
-                                    NSLog(@"%@",url);
+                                    //NSLog(@"%@",url);
                                     email.unsubscribe_url = url;
                                 }
                             }
                         }];
                     }
                     [allMails addObject:email];
+                    [tableView reloadData];
                 }
-                [tableView reloadData];
+                
             }
         }];
     }];

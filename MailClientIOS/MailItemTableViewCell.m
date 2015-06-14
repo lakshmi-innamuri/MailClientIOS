@@ -16,11 +16,13 @@
 
 - (void)awakeFromNib {
     // Initialization code
+    _color = [UIColor colorWithRed:0 green:0 blue:0 alpha:1];
 }
 
 -(id) initWithStyle:(UITableViewCellStyle)style reuseIdentifier:(NSString *)reuseIdentifier{
     
     self = [super initWithStyle:style reuseIdentifier:reuseIdentifier];
+    
     if (self) {
 //        CGRect labelRectange = CGRectMake(0,5,50,30);
 //        UILabel *senderLabel = [[UILabel alloc] initWithFrame:labelRectange];
@@ -32,13 +34,15 @@
         //use autolayout through code
 
         
-        
         CGRect labelRectange = CGRectMake(10,5,100,15);
         _senderValue = [[UILabel alloc] initWithFrame:labelRectange];
         [self.contentView addSubview:_senderValue];
+    
      
         CGRect labelRectange1 = CGRectMake(10,25,300,15);
         _subjectValue = [[UILabel alloc] initWithFrame:labelRectange1];
+        
+        
         [self.contentView addSubview:_subjectValue];
         
         CGRect labelRectange2 = CGRectMake(300,25,100,15);
@@ -51,7 +55,9 @@
 -(void) setSender:(NSString*) s{
     if(![s isEqualToString:_senderName]){
         _senderName = [s copy];
+        
         _senderValue.text = _senderName;
+        
     }
 }
 
@@ -59,6 +65,8 @@
     if(![sub isEqualToString:_subject]){
         _subject = [sub copy];
         _subjectValue.text = _subject;
+        _subjectValue.textColor = _color;
+       // [self updateCellDisplay];
     }
 }
 
