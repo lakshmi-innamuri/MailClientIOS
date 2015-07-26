@@ -123,10 +123,18 @@ NSMutableSet *mailboxSet;
     //TODO: add select all
     //update all ui switch to seelcted
     
-    [allCheckedMails removeAllObjects];
-    allCheckedMails = [allMails mutableCopy];
-    [self unsubscribe];
-    [allCheckedMails removeAllObjects];
+    NSBlockOperation *eezyBlockOperation = [NSBlockOperation blockOperationWithBlock:^{
+        [allCheckedMails removeAllObjects];
+        allCheckedMails = [allMails mutableCopy];
+        [self unsubscribe];
+        [allCheckedMails removeAllObjects];
+        
+    }];
+
+    NSOperationQueue *operationQueue = [[NSOperationQueue alloc]init];
+    [operationQueue addOperation:eezyBlockOperation];
+    
+
 
 }
 
@@ -157,6 +165,8 @@ NSMutableSet *mailboxSet;
 
 - (void) retrieveUnsubscribeEmails{
     // TODO: move common code to IAMP.m
+    
+    NSLog(@"here here");
     
     MCOIMAPSession *session = [[MCOIMAPSession alloc] init];
     session.hostname = @"imap.gmail.com";
@@ -189,7 +199,8 @@ NSMutableSet *mailboxSet;
     // FIXME: fetchMessages deprecated
     // TODO: retrieve in descending order of date
     // TODO: pull emails from all folders
-    
+    NSBlockOperation *eezyBlockOperation = [NSBlockOperation blockOperationWithBlock:^{
+
     
     [searchOperation start:^(NSError *err, MCOIndexSet *searchResult) {
         
@@ -250,8 +261,14 @@ NSMutableSet *mailboxSet;
                 
             }
         }];
+    }]; //close of nsop start
+        
     }];
-
+    NSLog(@"before block");
+    
+    NSOperationQueue *operationQueue = [[NSOperationQueue alloc]init];
+    [operationQueue addOperation:eezyBlockOperation];
+    NSLog(@"after block");
     
 }
 
